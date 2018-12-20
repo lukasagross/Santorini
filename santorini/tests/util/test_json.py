@@ -92,3 +92,14 @@ def test_invalid(connections):
 
     with pytest.raises(JSONDecodeError):
         read_json(client_conn)
+
+
+def test_close(connections):
+    client_conn, server_conn = connections
+    json = {"end of message": True}
+
+    write_json(server_conn, json)
+    server_conn.close()
+
+    assert read_json(client_conn) == json
+
