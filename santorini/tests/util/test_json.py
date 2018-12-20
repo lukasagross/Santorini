@@ -102,4 +102,3 @@ def test_close(connections):
     server_conn.close()
 
     assert read_json(client_conn) == json
-
