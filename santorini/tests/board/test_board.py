@@ -23,8 +23,8 @@ def test_valid_init():
     board3 = [[0, [2, "white1"], 0, 0, 0],
               [0, 3, 0, 0, [2, "blue2"]],
               [0, 0, [1, "blue1"], 0, 0],
-              [[1, "white2"], 0, 0, 1, 0],
-              [0, 0, 4, 0, 0]]
+              [[1, "white2"], 0, [2, "white3"], 1, 0],
+              [0, 0, 4, [0, "blue3"], 0]]
 
     assert Board(board3).board == board3
 

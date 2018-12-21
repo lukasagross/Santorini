@@ -2,6 +2,10 @@
 Class representing a Santorini board
 """
 
+from itertools import chain
+from operator import itemgetter
+
+
 
 class BoardError(Exception):
     """
@@ -25,32 +29,39 @@ class Board:
 
         flat_board = [cell for row in board for cell in row]
 
-        if any(not (isinstance(cell, (int, list))) for cell in flat_board):
+        def is_unoccupied(cell):
+            return isinstance(cell, int)
+
+        unoccupied = list(filter(is_unoccupied, flat_board))
+
+        def is_occupied(cell):
+            return (isinstance(cell, list)
+                    and len(cell) == 2
+                    and isinstance(cell[0], int)
+                    and isinstance(cell[1], str))
+
+        occupied = list(filter(is_occupied, flat_board))
+
+        if len(unoccupied) + len(occupied) != Board.LENGTH * Board.WIDTH:
             raise BoardError(f"Cells must be int or list[int str]")
 
-        if any(cell > Board.MAX_HEIGHT or cell < 0 for cell in flat_board if isinstance(cell, int)):
+        if not all(0 <= cell <= Board.MAX_HEIGHT for cell in chain(unoccupied, map(itemgetter(0), occupied))):
             raise BoardError(f"No cell can have height >{Board.MAX_HEIGHT} or <0")
 
-        workers = set()
+        workers = list(map(itemgetter(1), occupied))
 
-        for cell in filter(lambda cell: isinstance(cell, list), flat_board):
-            if len(cell) != 2 or not (isinstance(cell[0], int) and isinstance(cell[1], str)):
-                raise BoardError(f"Occupied cells must be list[int str], not {cell}")
+        if len(workers) != len(set(workers)):
+            raise BoardError("Workers must be unique")
 
-            height, worker = cell
+        def is_worker(worker):
+            for color in Board.COLORS:
+                for num in range(1, 1 + Board.MAX_WORKERS):
+                    if worker == color + str(num):
+                        return True
+            return False
 
-            if worker in workers:
-                raise BoardError(f"Workers must be unique, {worker} was found twice")
-
-            if height > Board.MAX_HEIGHT or height < 0:
-                raise BoardError(f"No cell can have height > {Board.MAX_HEIGHT} or <0")
-
-            if not any(worker == color + str(num)
-                       for color in Board.COLORS
-                       for num in range(1, 1 + Board.MAX_WORKERS)):
-                raise BoardError(f"Workers must have format [color][number], not {worker}")
-
-            workers.add(worker)
+        if not all(is_worker(worker) for worker in workers):
+            raise BoardError("Workers must have format [color][number]")
 
         self.board = board
 
