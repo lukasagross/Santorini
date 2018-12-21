@@ -6,7 +6,6 @@ from itertools import chain
 from operator import itemgetter
 
 
-
 class BoardError(Exception):
     """
     Exception raised by the Board class when building invalid boards
@@ -45,7 +44,8 @@ class Board:
         if len(unoccupied) + len(occupied) != Board.LENGTH * Board.WIDTH:
             raise BoardError(f"Cells must be int or list[int str]")
 
-        if not all(0 <= cell <= Board.MAX_HEIGHT for cell in chain(unoccupied, map(itemgetter(0), occupied))):
+        if not all(0 <= cell <= Board.MAX_HEIGHT
+                   for cell in chain(unoccupied, map(itemgetter(0), occupied))):
             raise BoardError(f"No cell can have height >{Board.MAX_HEIGHT} or <0")
 
         workers = list(map(itemgetter(1), occupied))
